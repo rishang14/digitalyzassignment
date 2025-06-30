@@ -2,7 +2,7 @@
 import useClientvalidation from "@/hooks/validation/useClientvalidation";
 import useTaskvalidation from "@/hooks/validation/useTaskvalidation";
 import useWokervalidation from "@/hooks/validation/useWorkervalidation";
-import { Tabs,TabsContent,TabsList,TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React, { useEffect, useState } from "react";
 import ReusableTable from "@/components/Table";
 // got the client workers and task details add validation and show it in a table thats it
@@ -14,9 +14,9 @@ import ReusableTable from "@/components/Table";
 // priorty cnt be greater > 5 and < 1
 // look in taask for some chekc and many more
 
-const Page = () => { 
-  const [activeTab,setactiveTab]=useState("client")
-  const [clientdetails, setclientdetails] = useState([]); 
+const Page = () => {
+  const [activeTab, setactiveTab] = useState("client");
+  const [clientdetails, setclientdetails] = useState([]);
   const [workerdetails, setworkerdetails] = useState([]);
   const [taskdetails, settaskdetails] = useState([]);
   const { clienterrors, clientglobalErrors } = useClientvalidation(
@@ -28,7 +28,9 @@ const Page = () => {
     workerdetails
   );
   const { workererror, workerglobalErrors } = useWokervalidation(workerdetails);
- console.log(workererror,"error")
+  console.log(workerglobalErrors, "error");
+  console.log(workerglobalErrors, "errore");
+  console.log(clientglobalErrors);
   useEffect(() => {
     // datas are retrived from storage
     const clientcsv = localStorage.getItem("clientcsv");
@@ -61,50 +63,74 @@ const Page = () => {
             <TabsTrigger
               value="client"
               className="flex items-center gap-2 p-3 data-[state=active]:bg-blue-500 data-[state=active]:text-white rounded-md transition-colors"
-            > 
-
+            >
               Client
-              
             </TabsTrigger>
             <TabsTrigger
               value="worker"
               className={`flex items-center gap-2 p-3 data-[state=active]:bg-blue-500 data-[state=active]:text-white rounded-md transition-colors `}
             >
-          
-             Woker
+              Woker
             </TabsTrigger>
             <TabsTrigger
               value="task"
               className={`flex items-center p-3 gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white rounded-md transition-colors`}
             >
-              
               Task
             </TabsTrigger>
           </TabsList>
-              <TabsContent value="client" className="space-y-6 mt-6">
-               <ReusableTable   
-               setTabledata={setclientdetails} 
-               tabledata={clientdetails} 
-               localestoragekey="clientcsv"  
-               tableerror={clienterrors}
-               /> 
-              </TabsContent>
-              <TabsContent value="worker" className="space-y-6 mt-6">
-               <ReusableTable   
-               setTabledata={setworkerdetails} 
-               tabledata={workerdetails} 
-               localestoragekey="workercsv"  
-               tableerror={workererror}
-               /> 
-              </TabsContent>
-              <TabsContent value="task" className="space-y-6 mt-6">
-               <ReusableTable   
-               setTabledata={settaskdetails} 
-               tabledata={taskdetails} 
-               localestoragekey="taskcsv"  
-               tableerror={taskerrors}
-               /> 
-              </TabsContent>
+          <TabsContent value="client" className="space-y-6 mt-6">
+            {Object.keys(clientglobalErrors).length > 0 ? (
+              clientglobalErrors.missingFields?.map(
+                (item: any, idx: number) => (
+                  <p key={idx} className="text-white">
+                    These fields are missing: {item} from header
+                  </p>
+                )
+              )
+            ) : (
+              <ReusableTable
+                setTabledata={setclientdetails}
+                tabledata={clientdetails}
+                localestoragekey="clientcsv"
+                tableerror={clienterrors}
+              />
+            )}
+          </TabsContent>
+          <TabsContent value="worker" className="space-y-6 mt-6">
+            {Object.keys(workerglobalErrors).length > 0 ? (
+              workerglobalErrors.missingFields?.map(
+                (item: any, idx: number) => (
+                  <p key={idx} className="text-black">
+                    These fields are missing: {item} from header 
+                  </p>
+                )
+              )
+            ) : (
+              <ReusableTable
+                setTabledata={setworkerdetails}
+                tabledata={workerdetails}
+                localestoragekey="workercsv"
+                tableerror={workererror}
+              />
+            )}
+          </TabsContent>
+          <TabsContent value="task" className="space-y-6 mt-6">
+            {Object.keys(taskglobalErrors).length > 0 ? (
+              taskglobalErrors.missingFields?.map((item: any, idx: number) => (
+                <p key={idx} className="text-white">
+                  These fields are missing: {item} from header 
+                </p>
+              ))
+            ) : (
+              <ReusableTable
+                setTabledata={settaskdetails}
+                tabledata={taskdetails}
+                localestoragekey="taskcsv"
+                tableerror={taskerrors}
+              />
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </div>
